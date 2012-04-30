@@ -1,0 +1,21 @@
+{
+  "name": "hhabitalt",
+  "preferGlobal": "false",
+  "version": "0.0.1",
+  "author": "Hajime Morrita <omo@dodgson.org>",
+  "description": "A site blocker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omo/habitalt.git"
+  },
+  "dependencies" : {
+    "mustache"   :  "*",
+    "backbone"   :  "*",
+    "underscore" :  "*",
+    "less" :  "*"
+  },
+  "noAnalyze": true,
+  "devDependencies": {
+  },
+  "license": "MIT"
+}

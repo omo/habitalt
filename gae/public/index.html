@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Habitalt</title>
+<script src="js/third_party/jquery-1.7.2.min.js"></script>
+<script src="js/third_party/underscore-min.js"></script>
+<script src="js/third_party/backbone-min.js"></script>
+<script src="js/third_party/mustache.js"></script>
+<script src="js/main.js"></script>
+
+<link rel="stylesheet/less" type="text/css" href="stylesheets/screen.less">
+<script src="js/third_party/less-1.3.0.min.js"></script>
+
+<script type="text/mustache" id="welcomeViewTemplate">
+Welcome to Habitalt! <a href="/login">Login using your Google account</a>.
+</script>
+
+<script type="text/mustache" id="askingViewTemplate">
+<h1 class="asking-title">Hi, Why Here?</h1>
+<div class="you-ve-touched">You've touched <span>{{source}}</span></div>
+<div class="answering">
+  <textarea class="answering-note"></textarea>
+  <div class="footer-container">
+    <div class="footer-suggestion">
+You can talk about...
+<ul>
+  <li>What you are just doing,</li>
+  <li>What in your mind and</li>
+  <li>Who you talked with or was thinking about.</li>
+</ul>
+    </div>
+    <input class="answering-button" type="button" value="This is why.">
+  </div>
+</div>
+</script>
+
+<script type="text/mustache" id="reflectingViewTemplate">
+<div class="reflecting-suggestion">
+Breathe slowly. Walk around. Have a cup of water. Do whatever making you calm.
+</div>
+<div class="reflecting-list">
+</div>
+</script>
+
+<script type="text/mustache" id="reflectingItemTemplate">
+<div>{{note}}</div>
+<div>{{source}}</div>
+<div>{{created_at}}</div>
+</script>
+
+</head>
+<body>
+<div class="welcome"></div>
+<div class="layout-center">
+<div class="asking"></div>
+<div class="reflecting"></div>
+</div>
+<div class="layout-sticking">
+<div class="loginout">
+  <a class="login" href="/login">Login</a>
+  <a class="logout" href="/logout">Logout</a>
+</div>
+</div>
+</body>
+</html>

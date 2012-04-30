@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Habitalt - Options</title>
+<script src="third_party/mustache.js"></script>
+<script src="third_party/jquery-1.7.2.min.js"></script>
+<script src="extension.js"></script>
+<script type="text/hogan.js" id="patternEntryTemplate">
+  <div class="pattern-text-container">
+    <input class="pattern-text" type="text" value="{{value}}"></input>
+  </div>
+  <input class="pattern-delete-button" type="button" value="-"></input>
+</script>
+<style>
+
+* {
+  font-family: verdana;
+}
+
+#settings {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  position: relative;
+  width: 30em;
+}
+
+.settings-section-title {
+  font-size: medium;
+  padding: 0.2em 0em 0.2em 0em;
+}
+
+#patterns-reset {
+  font-size: small;
+}
+
+#patterns-reset a:link,
+#patterns-reset a:visited
+ {
+  color: #03c;
+}
+
+#patterns {
+  display: -webkit-box;
+  -webkit-box-flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.pattern {
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+}
+
+.pattern-text-container {
+  -webkit-box-flex: 1;
+  position: relative;
+  padding: 0.2em;
+}
+
+.pattern-text {
+  width: 100%;
+  font-family: monospace;
+  border-style: solid;
+  border-width: 0px 0px 1px 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+.pattern-delete-button {
+  width: 2em;
+}
+
+.pattern-buttons {
+  padding: 0.5em 0px 0.5em 0px;
+  display: -webkit-box;
+  width: 100%;
+}
+
+</style>
+</head>
+<body>
+<h1>Habitalt Options</h1>
+<div id="settings">
+  <h2 class="settings-section-title">
+   Blocked Sites
+   <span id="patterns-reset">(<a href="#">Reset to default</a>)</span></h2>
+  <div id="patterns">
+  </div>
+  <div class="pattern-buttons">
+    <input id="pattern-add-button" type="button" value="+"></input>
+    <input id="pattern-save-button" type="button" value="Save"></input>
+  </div>
+</body>
+</html>
