@@ -21,7 +21,7 @@
 
 <script type="text/mustache" id="askingViewTemplate">
 <h1 class="asking-title">Hi, Why Here?</h1>
-<div class="you-ve-touched">You've touched <span class="source-url">{{source}}</span></div>
+<div class="asking-caption">You've touched <span class="source-url">{{source}}</span></div>
 <div class="answering">
   <textarea class="answering-note"></textarea>
   <div class="footer-container">
@@ -54,9 +54,9 @@ You can talk about...
 <script type="text/mustache" id="reflectingItemTemplate">
 <div class="ref-note">{{note}}</div>
 <div class="ref-footer-container">
-  <div class="ref-source" title="{{fullSource}}">{{readableSource}}</div>
-  <div class="ref-arrow">@</div>
   <div class="ref-date">{{readableTime}}</div>
+  <div class="ref-arrow">on</div>
+  <div class="ref-source" title="{{fullSource}}">{{readableSource}}</div>
 </div>
 </script>
 
@@ -70,12 +70,12 @@ You can talk about...
 </div>
 
 <div class="sticking">
-<div class="stick-site-label"><a href="http://steps.dodgson.org/">Habitalt</a></div>
-<div class="loginout">
+<div class="site-label"><a href="http://steps.dodgson.org/">Habitalt</a></div>
+<span class="loginout">
   &middot;
   <a class="login" href="/login">Login</a>
   <a class="logout" href="/logout">Logout</a>
-</div>
+</span>
 </div>
 
 </body>
