@@ -141,11 +141,18 @@ Ha.ReflectingView = Backbone.View.extend(
     },
 
     listWasLoaded: function(list) {
-      var itemsByDate = Ha.listGroupByDate(list);
-      for (var key in itemsByDate) {
-	var items = itemsByDate[key];
-	this.addListDailyHeader(new Date(Date.parse(items[0].created_at)));
-	items.forEach(this.addListItem.bind(this));
+      if (list.length) {
+	var itemsByDate = Ha.listGroupByDate(list);
+	for (var key in itemsByDate) {
+	  var items = itemsByDate[key];
+	  this.addListDailyHeader(new Date(Date.parse(items[0].created_at)));
+	  items.forEach(this.addListItem.bind(this));
+	}
+      }	else {
+	console.log("here");
+	this.listRoot.append(
+	  Ha.instantiateTemplate(
+	    "#reflectingNoItemTemplate", "reflect-no-item", {}));
       }
     }
   });
