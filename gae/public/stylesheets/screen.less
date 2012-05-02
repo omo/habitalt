@@ -9,10 +9,10 @@ body {
     background-repeat: round;
 }
 
-.box-container(@direction) {
+.box-container(@orient, @pack: start) {
     display: -webkit-box;
-    -webkit-box-orient: @direction;
-
+    -webkit-box-orient: @orient;
+    -webkit-box-pack: @pack
 }
 
 .box-flex {
@@ -89,6 +89,21 @@ body {
     .theme-caption-darker-fg(@font-size);
 }
 
+.theme-caption-lighter-bg {
+    @bg-base: #4479D4;
+    background: -webkit-linear-gradient(left, @bg-base 0%, lighten(@bg-base, 15%) 100%);
+}
+
+.theme-caption-lighter-fg (@font-size: @theme-font-size-normal) {
+    .theme-type-caption(@font-size);
+    color: #FFA400;
+}
+
+.theme-caption-lighter(@font-size: @theme-font-size-normal) {
+    .theme-caption-lighter-bg;
+    .theme-caption-lighter-fg(@font-size);
+}
+
 .theme-caption-hilight {
     color: #FFCD73;
 }
@@ -96,6 +111,21 @@ body {
 .theme-caption-loud {
     .theme-caption(@theme-font-size-large);
     color: white;
+}
+
+.theme-buttonish {
+    .theme-caption-fg(@theme-font-size-small);
+    color: lighten(#FFCD73, 10%);
+    @bg-base: #052C6E;
+    background-color: @bg-base;
+
+    display: inline-box;
+    text-decoration: none;
+    padding: 0.2em 0.4em 0.2em 0.4em;
+
+    &:hover {
+	background-color: lighten(@bg-base, 20%);
+    }
 }
 
 .theme-text-message {
@@ -194,6 +224,26 @@ body {
     100% { border-color: #4479D4; }
 }
 
+@-webkit-keyframes fade-out {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@-webkit-keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.deleting-element {
+    -webkit-animation: fade-out 0.2s 1;
+    opacity: 0;
+}
+
+.appearing-element {
+    -webkit-animation: fade-in 0.2s 1;
+    opacity: 1;
+}
+
 /*
  * Components
  */
@@ -264,6 +314,7 @@ body {
 .reflect-list-item {
     .theme-caption-bg;
     .reflect-list-item-base;
+    position: relative;
 
     .ref-note {
 	border-radius: @theme-text-border-radius @theme-text-border-radius 0em 0em;
@@ -292,6 +343,26 @@ body {
     .ref-source {
 	padding: @ref-footer-padding;
 	.theme-caption-hilight;
+    }
+
+    .ref-buttons {
+	padding: 0px @ref-footer-padding @ref-footer-padding @ref-footer-padding;
+	.box-flex;
+	.box-container(horizontal, end);
+    }
+
+    .ref-delete-button {
+	.theme-buttonish;
+	border-radius: 0 0 @theme-text-border-radius @theme-text-border-radius;
+	visibility: hidden;
+    }
+
+    &:hover {
+	.theme-caption-lighter-bg;
+	.ref-delete-button {
+	    visibility: visible;
+	    .appearing-element;
+	}
     }
 }
 

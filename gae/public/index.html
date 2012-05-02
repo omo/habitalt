@@ -52,11 +52,15 @@ You can talk about...
 </script>
 
 <script type="text/mustache" id="reflectingItemTemplate">
-<div class="ref-note">{{note}}</div>
+<div class="ref-note">{{note}}
+</div>
 <div class="ref-footer-container">
   <div class="ref-date">{{readableTime}}</div>
   <div class="ref-arrow">on</div>
   <div class="ref-source" title="{{fullSource}}">{{readableSource}}</div>
+  <div class="ref-buttons">
+    <a class="ref-delete-button" href="" title="delete">delete</a>
+  </div>
 </div>
 </script>
 

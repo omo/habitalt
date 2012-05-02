@@ -30,7 +30,6 @@ class User(db.Model):
 
 
 class Reflect(db.Model):
-  owner = db.ReferenceProperty(User, required=True)
   source = db.StringProperty(default="")
   note = db.TextProperty(default="")
   created_at = db.DateTimeProperty(auto_now_add=True)
@@ -40,8 +39,7 @@ class Reflect(db.Model):
 
   @classmethod
   def count_for(cls, me):
-    return cls.all().filter("owner = ", me).count()
-
+    return cls.all().ancestor(me).count()
 
 jinja_environment = jinja2.Environment(
   loader=jinja2.FileSystemLoader(
@@ -96,7 +94,7 @@ class ReflectHandler(ResourceSharableHandler):
   @login_required_unless_forbidden
   def get(self):
     me = User.ensure_current()
-    found = Reflect.all().filter("owner = ", me).order("-created_at").fetch(limit=100)
+    found = Reflect.all().ancestor(me).order("-created_at").fetch(limit=100)
     result = { "list": [ f.to_dict() for f in found ] }
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(json.dumps(result))
@@ -106,11 +104,26 @@ class ReflectHandler(ResourceSharableHandler):
   def put(self):
     req = body_json_of(self.request, ["source", "note"])
     me = User.ensure_current()
-    data = Reflect(owner=me, source=req.get("source"), note=req.get("note"))
+    data = Reflect(parent=me, source=req.get("source"), note=req.get("note"))
     data.put()
 
     self.response.content_type = "application/json"
     self.response.write(json.dumps(data.to_dict()))
+
+  @make_sharable
+  @login_required_unless_forbidden
+  def delete(self):
+    id = self.request.get("id")
+    if not id:
+      raise exc.HTTPClientError("Needs ID")
+    me = User.ensure_current()
+    found = Reflect.get_by_id(db.Key(encoded=id).id(), me)
+    if not found:
+      raise exc.HTTPNotFound("ID %s is not found" % id)
+    found.delete()
+    self.response.content_type = "application/json"
+    self.response.write(json.dumps(found.to_dict()))
+
 routes.append(('/reflect', ReflectHandler))
 
 

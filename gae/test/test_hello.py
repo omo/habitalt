@@ -45,6 +45,20 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
         self.assertEquals(1, Reflect.count_for(me))
         json.loads(response.body)        
 
+    def test_delete(self):
+        self.giveUser()
+        me = User.ensure_current()
+        toput = Reflect(parent=me, source="http://example.com", note="Hello")
+        toput.put()
+        self.assertEquals(1, Reflect.count_for(me))
+
+        request = webapp2.Request.blank('/reflect?id=%s' % str(toput.key()))
+        request.method = "DELETE"
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 200)
+        self.assertEquals(0, Reflect.count_for(me))
+        json.loads(response.body)
+
     def test_options(self):
         self.giveUser()
         request = webapp2.Request.blank('/reflect')

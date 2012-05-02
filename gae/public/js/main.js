@@ -137,7 +137,15 @@ Ha.ReflectingView = Backbone.View.extend(
 	"#reflectingItemTemplate", "reflect-list-item",
 	Ha.makePresentationForReflectingItem(item));
       itemRoot[0].dataset.id = item.id;
+      itemRoot.find(".ref-delete-button").on("click", itemRoot, this.didDeleteButtonClick.bind(this));
       this.listRoot.append(itemRoot);
+    },
+
+    didDeleteButtonClick: function(evt) {
+      evt.preventDefault();
+      var itemRoot = evt.data;
+      itemRoot.addClass("deleting-element").on("webkitAnimationEnd", function() { itemRoot.remove(); });
+      this._app.deleteReflectItem(itemRoot[0].dataset.id);
     },
 
     listWasLoaded: function(list) {
@@ -274,6 +282,18 @@ Ha.App = Backbone.Router.extend(
 	}).done(
 	  function() {
 	    this.loadReflectList();
+	  }.bind(this));
+    },
+
+    deleteReflectItem: function(id) {
+      $.ajax(
+	{
+	  url: Ha.getApiBase() + "/reflect?id=" + id,
+	  type: "DELETE",
+	  xhrFields: { withCredentials: true }
+	}).done(
+	  function(result) {
+	    //
 	  }.bind(this));
     },
 
