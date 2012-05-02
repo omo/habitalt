@@ -12,8 +12,9 @@ var DEFAULT_OPTIONS = {
     "^http(s)?://d\\.hatena\\.ne\\.jp/$"
   ],
 
-  destinationTemplate: "http://localhost:8080/#u?%s",
-  siteUrl: "http://localhost:8080/"
+  destinationTemplate: "http://habitalt.appspot.com/#u?%s",
+  apiUrl: "http://habitalt.appspot.com/",
+  siteUrl: "http://habitalt.appspot.com/"
 };
 
 var Habitalt = function() {
@@ -88,7 +89,7 @@ Habitalt.prototype.showLanding = function () {
 };
 
 Habitalt.prototype.ensureLogin = function () {
-  var url = this._options.siteUrl + "ping";
+  var url = this._options.apiUrl + "ping";
   $.ajax(
     {
       url: url,

@@ -10,6 +10,9 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 
 
+ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com"]
+
+
 class User(db.Model):
   account = db.UserProperty(required=True)
 
@@ -50,8 +53,10 @@ routes = []
 
 def login_required_unless_forbidden(fn):
   def wrap(*args):
+    callee = args[0]
+    callee.make_sharable()
+
     if not users.get_current_user():
-      callee = args[0]
       callee.response.status = 403
       callee.response.out.write('Need to be logged in.')
       return
@@ -67,7 +72,16 @@ def body_json_of(request, mandated_fields):
         raise exc.HTTPClientError("Needs property %s" % f)
     return req
 
-class ReflectHandler(webapp2.RequestHandler):
+
+class ResourceSharableHandler(webapp2.RequestHandler):
+  def make_sharable(self):
+    self.response.headers.add_header("Access-Control-Allow-Origin", " ".join(ALLOWED_DOMAINS))
+
+  def option(self):
+    self.make_sharable()
+  
+
+class ReflectHandler(ResourceSharableHandler):
   @login_required_unless_forbidden
   def get(self):
     me = User.ensure_current()
@@ -88,7 +102,7 @@ class ReflectHandler(webapp2.RequestHandler):
 routes.append(('/reflect', ReflectHandler))
 
 
-class PingHandler(webapp2.RequestHandler):
+class PingHandler(ResourceSharableHandler):
   @login_required_unless_forbidden
   def get(self):
     self.response.out.write(json.dumps({}))

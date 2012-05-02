@@ -2,7 +2,7 @@
 
 CRX_JS_THIRD_PARTY = crx/third_party
 GAE_JS_THIRD_PARTY = gae/public/js/third_party
-GAESDK_PATH = ~/local/google_appengine/
+GAESDK_PATH = ~/local/google_appengine
 PYTHON=python
 
 build: ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
@@ -23,6 +23,8 @@ ${CRX_JS_THIRD_PARTY}:
 pytest:
 	cd gae && ${PYTHON} test.py ${GAESDK_PATH}
 
+deploy:
+	${GAESDK_PATH}/appcfg.py update ./gae
 clean: 
 	-rm -r ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 

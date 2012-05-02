@@ -12,6 +12,6 @@
     "page": "background.html"
   },
   "permissions": [
-    "tabs", "background", "http://localhost:8080/*"
+    "tabs", "background", "http://localhost:8080/*", "http://habitalt.appspot.com/"
   ]
 }
