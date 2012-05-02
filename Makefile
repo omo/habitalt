@@ -17,6 +17,7 @@ ${GAE_JS_THIRD_PARTY}:
 
 ${CRX_JS_THIRD_PARTY}:
 	mkdir -p $@
+	cp node_modules/less/dist/less-1.3.0.min.js $@
 	cp node_modules/mustache/mustache.js $@
 	cp third_party/jquery-1.7.2.min.js $@
 

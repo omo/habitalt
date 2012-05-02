@@ -4,127 +4,38 @@
 <title>Habitalt - Options</title>
 <script src="third_party/mustache.js"></script>
 <script src="third_party/jquery-1.7.2.min.js"></script>
+<link rel="stylesheet/less" type="text/css" href="options.less">
+<script src="third_party/less-1.3.0.min.js"></script>
+
 <script src="extension.js"></script>
 
 <script type="text/hogan.js" id="patternEntryTemplate">
-  <div class="pattern-text-container">
-    <input class="pattern-text" type="text" value="{{value}}"></input>
+  <div class="text-container">
+    <input class="text" type="text" value="{{value}}"></input>
   </div>
-  <input class="pattern-delete-button" type="button" value="-"></input>
+  <input class="delete-button" type="button" value="-"></input>
 </script>
 
 <script type="text/hogan.js" id="filtersEntryTemplate">
-  <div class="filter-text-container">
-    <input class="filter-text" type="text" value="{{value}}"></input>
+  <div class="text-container">
+    <input class="text" type="text" value="{{value}}"></input>
   </div>
-  <input class="filter-delete-button" type="button" value="-"></input>
+  <input class="delete-button" type="button" value="-"></input>
 </script>
 
-<style>
-
-* {
-  font-family: verdana;
-}
-
-#settings {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  position: relative;
-  width: 30em;
-}
-
-.settings-section-title {
-  font-size: medium;
-  padding: 0.2em 0em 0.2em 0em;
-}
-
-#patterns-reset {
-  font-size: small;
-}
-
-#patterns-reset a:link,
-#patterns-reset a:visited
- {
-  color: #03c;
-}
-
-#patterns {
-  display: -webkit-box;
-  -webkit-box-flex: 1;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-}
-
-.pattern, .filter {
-  width: 100%;
-  display: -webkit-box;
-  -webkit-box-orient: horizontal;
-}
-
-.pattern-text-container {
-  -webkit-box-flex: 1;
-  position: relative;
-  padding: 0.2em;
-}
-
-#filters {
-
-}
-
-.pattern-text, .filter-text {
-  width: 100%;
-  font-family: monospace;
-  border-style: solid;
-  border-width: 0px 0px 1px 0px;
-  padding: 0px;
-  margin: 0px;
-}
-
-.pattern-delete-button, .filter-delete-button {
-  width: 2em;
-}
-
-.pattern-buttons {
-  padding: 0.5em 0px 0.5em 0px;
-  display: -webkit-box;
-  width: 100%;
-}
-
-.devsetting-item {
-  display: -webkit-box;
-  -webkit-box-orient: horizontal;
-}
-
-.devsetting-item .item-name {
-  width: 8em;
-}
-
-.devsetting-item .item-value {
-  -webkit-box-flex: 1;
-  position: relative;
-}
-
-.devsetting-item .item-value input {
-  width: 100%;
-  border-style: none;
-  background-color: #eee;
-}
-
-</style>
 </head>
 <body>
 <h1>
 Habitalt Options
-<span id="patterns-reset">(<a href="#">Reset to default</a>)</span></h2>
+<span id="reset">(<a href="#">Reset to default</a>)</span></h2>
 </h1>
 <div id="settings">
   <h2 class="settings-section-title">
    Blocked Sites
   <div id="patterns">
   </div>
-  <div class="pattern-buttons">
+  <div class="buttons">
     <input id="pattern-add-button" type="button" value="+"></input>
-    <input id="pattern-save-button" type="button" value="Save"></input>
   </div>
   <details id="devsettings-section" open>
     <summary>Developer Options</summary>
@@ -134,11 +45,15 @@ Habitalt Options
     <div class="devsetting-item"><div class="item-name">Destinagion</div> <div class="item-value"><input id="destination"></input></div></div>
     <h2 class="settings-section-title">Filter Targets</h2>
     <div id="filters"></div>
-    <div class="pattern-buttons">
-      <input id="misc-add-button" type="button" value="+"></input>
-      <input id="misc-save-button" type="button" value="Save"></input>
+    <div class="buttons">
+      <input id="filter-add-button" type="button" value="+"></input>
     </div>
   </details>
+ <hr />
+  <div>
+    <input id="save-button" type="button" value="Save" disabled></input>
+  <div>
+</div>
   
 </body>
 </html>

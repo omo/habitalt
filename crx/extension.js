@@ -42,6 +42,7 @@ Habitalt.prototype.loadOptons = function() {
   this._options = optionsString ? JSON.parse(optionsString) : null;
   if (!this._options)
     this.loadDefaultOptons();
+
   this._destinationTemplate = this._options.destinationTemplate;
   this._patterns = this._options.patterns.map(
     function(patternString) {
@@ -53,17 +54,27 @@ Habitalt.prototype.saveOptions = function() {
   window.localStorage["options"] = JSON.stringify(this._options);
 };
 
-Habitalt.prototype.savePatternStrings = function(patterns) {
-  this._options.patterns = patterns;
-  this.saveOptions();
+Habitalt.prototype.setPatternStrings = function(values) {
+  this._options.patterns = values;
 };
 
 Habitalt.prototype.getPatternStrings = function() {
   return this._options.patterns;
 };
 
+Habitalt.prototype.setFilterStrings = function(values) {
+  this._options.filters = values;
+};
+
 Habitalt.prototype.getFilterStrings = function() {
   return this._options.filters;
+};
+
+Habitalt.prototype.setUrls = function(values) {
+  ["destinationTemplate", "apiUrl", "siteUrl"].forEach(
+    function(x) {
+      this._options[x] = values[x];      
+    }, this);
 };
 
 Habitalt.prototype.matches = function(url) {
@@ -144,16 +155,17 @@ Habitalt.OptionPage = function(app) {
 
   this._patternsRoot = $("#patterns");
   this._filtersRoot = $("#filters");
-  $("#patterns-reset").on("click", this.reset.bind(this));
+  $("#reset").on("click", this.reset.bind(this));
   $("#pattern-add-button").on("click", this.addNewPatternInput.bind(this, ""));
-  $("#pattern-save-button").on("click", this.savePatterns.bind(this));
+  $("#filter-add-button").on("click", this.addNewFilterInput.bind(this, ""));
+  $("#save-button").on("click", this.save.bind(this));
   this._app.getPatternStrings().forEach(
     function(p) { this.addNewPatternInput(p); }, this);
   this._app.getFilterStrings().forEach(
     function(p) { this.addNewFilterInput(p); }, this);
-  $("#api-server").val(this._app._options.apiUrl);
-  $("#site-url").val(this._app._options.siteUrl);
-  $("#destination").val(this._app._options.destinationTemplate);
+  $("#api-server").val(this._app._options.apiUrl).on("input", this.markDirty.bind(this));
+  $("#site-url").val(this._app._options.siteUrl).on("input", this.markDirty.bind(this));
+  $("#destination").val(this._app._options.destinationTemplate).on("input", this.markDirty.bind(this));
 };
 
 Habitalt.OptionPage.prototype.addNewPatternInput = function(initialValue) {
@@ -161,10 +173,11 @@ Habitalt.OptionPage.prototype.addNewPatternInput = function(initialValue) {
   var newBox = 
     $("<div class='pattern'>").html(
       Mustache.to_html(t, { value: initialValue }));
-  newBox.find(".pattern-delete-button").on(
+  newBox.find(".text").on("input", this.markDirty.bind(this));
+  newBox.find(".delete-button").on(
     "click", function(evt) {
       newBox.remove();
-      this.savePatterns();
+      this.markDirty();
     }.bind(this));
   this._patternsRoot.append(newBox);
 };
@@ -174,12 +187,17 @@ Habitalt.OptionPage.prototype.addNewFilterInput = function(initialValue) {
   var newBox = 
     $("<div class='filter'>").html(
       Mustache.to_html(t, { value: initialValue }));
-  newBox.find(".flter-delete-button").on(
+  newBox.find(".text").on("input", this.markDirty.bind(this));
+  newBox.find(".delete-button").on(
     "click", function(evt) {
-      //newPatternBox.remove();
-      //this.savePatterns();
+      newBox.remove();
+      this.markDirty();
     }.bind(this));
   this._filtersRoot.append(newBox);
+};
+
+Habitalt.OptionPage.prototype.markDirty = function() {
+  $("#save-button").removeAttr("disabled");
 };
 
 Habitalt.OptionPage.prototype.reset = function() {
@@ -188,14 +206,28 @@ Habitalt.OptionPage.prototype.reset = function() {
   chrome.extension.getBackgroundPage().location.reload();
 };
 
-Habitalt.OptionPage.prototype.savePatterns = function() {
-  this._app.savePatternStrings(this.getPatternStrings());
+Habitalt.OptionPage.prototype.save = function() {
+  this._app.setPatternStrings(this.getPatternStrings());
+  this._app.setFilterStrings(this.getFilterStrings());
+  this._app.setUrls(
+    {
+      destinationTemplate: $("#destination").val(),
+      apiUrl: $("#api-server").val(),
+      siteUrl: $("#site-url").val()
+    }
+  );
+  this._app.saveOptions();
   window.location.reload();
   chrome.extension.getBackgroundPage().location.reload();
 };
 
 Habitalt.OptionPage.prototype.getPatternStrings = function() {
-  return this._patternsRoot.find(".pattern-text").map(
+  return this._patternsRoot.find(".text").map(
+    function(e) { return this.value; }).toArray();
+};
+
+Habitalt.OptionPage.prototype.getFilterStrings = function() {
+  return this._filtersRoot.find(".text").map(
     function(e) { return this.value; }).toArray();
 };
 

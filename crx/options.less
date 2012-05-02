@@ -1,0 +1,112 @@
+/*
+ * Resets
+ */
+
+* {
+  font-family: verdana;
+}
+
+/*
+ * Layout and more
+ */
+#settings {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    position: relative;
+    width: 30em;
+}
+
+.settings-section-title {
+    font-size: medium;
+    padding: 0.2em 0em 0.2em 0em;
+}
+
+#reset {
+  font-size: small;
+
+  a:link, a:visited
+  {
+      color: #03c;
+  }
+}
+
+.module-list {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-box-flex: 1;
+}
+
+.module-list-item {
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+
+  .text-container {
+      -webkit-box-flex: 1;
+      position: relative;
+      padding: 0.2em;
+
+      input[type=text] {
+	  width: 100%;
+	  font-family: monospace;
+	  border-style: solid;
+	  border-width: 0px 0px 1px 0px;
+	  padding: 0px;
+	  margin: 0px;
+      }
+  }
+
+  .delete-button {
+      width: 2em;
+  }
+}
+
+#patterns {
+    .module-list;
+    .pattern {
+	.module-list-item;
+    }
+}
+
+#filters {
+    .module-list;
+    .filter {
+	.module-list-item;
+    }
+}
+
+.pattern-delete-button, .filter-delete-button {
+  width: 2em;
+}
+
+.buttons {
+  padding: 0.5em 0px 0.5em 0px;
+  display: -webkit-box;
+  width: 100%;
+}
+
+.devsetting-item {
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+
+  .item-name {
+      width: 8em;
+  }
+
+  .item-value {
+      -webkit-box-flex: 1;
+      position: relative;
+
+      input {
+	  width: 100%;
+	  border-style: none;
+	  background-color: #eee;
+	  font-family: monospace;
+      }
+  }
+
+
+}
+
+
+
