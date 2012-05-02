@@ -244,7 +244,8 @@ Ha.App = Backbone.Router.extend(
 	  url: "/reflect",
 	  type: "POST",
 	  contentType: "application/json",
-	  data: JSON.stringify(topost)
+	  data: JSON.stringify(topost),
+	  xhrFields: { withCredentials: true }
 	}).done(
 	  function() {
 	    this.navigate("reflecting", { trigger: true });
@@ -256,7 +257,8 @@ Ha.App = Backbone.Router.extend(
 	{
 	  url: "/reflect",
 	  type: "GET",
-	  dataType: "json"
+	  dataType: "json",
+	  xhrFields: { withCredentials: true }
 	}).done(
 	  function(result) {
 	    this._reflectingView.listWasLoaded(result.list);
@@ -288,6 +290,7 @@ Ha.App = Backbone.Router.extend(
 	  url: "/ping",
 	  type: "GET",
 	  dataType: "json",
+	  xhrFields: { withCredentials: true },
 	  statusCode: {
 	    403: function() {
 	      this.loginWasChecked(false);

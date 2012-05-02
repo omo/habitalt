@@ -12,6 +12,10 @@ var DEFAULT_OPTIONS = {
     "^http(s)?://d\\.hatena\\.ne\\.jp/$"
   ],
 
+  listeningPatterns: [
+    "*://facebook.com/*"
+  ],
+
   destinationTemplate: "http://habitalt.appspot.com/#u?%s",
   apiUrl: "http://habitalt.appspot.com/",
   siteUrl: "http://habitalt.appspot.com/"
@@ -99,11 +103,25 @@ Habitalt.prototype.ensureLogin = function () {
 	403: function() {
 	  this.showLanding();
 	}.bind(this)
-      }
+      },
+      xhrFields: { withCredentials: true }
     }).done(function() {});
 };
 
-//
+Habitalt.prototype.beforeRequestFilter = function(details) {
+  return { cancel: false };
+};
+
+Habitalt.prototype.makeFilteringUrls = function() {
+  return ["<all_urls>"];
+};
+
+Habitalt.prototype.addRequestFilters = function() {
+  chrome.webRequest.onBeforeRequest.addListener(
+    this.beforeRequestFilter.bind(this),
+    {urls: this.makeFilteringUrls() },
+    "blocking");
+};
 
 Habitalt.OptionPage = function(app) {
   this._app = app;

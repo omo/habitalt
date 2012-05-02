@@ -42,7 +42,22 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
         self.assertEquals(response.status_int, 200)
         self.assertEquals(1, Reflect.count_for(me))
         json.loads(response.body)        
+
+    def test_options(self):
+        self.giveUser()
+        request = webapp2.Request.blank('/reflect')
+        request.method = "OPTIONS"
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 200)
         
+    def test_get_with_origin(self):
+        self.giveUser()
+        extension_id = "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"
+        request = webapp2.Request.blank('/reflect')
+        request.headers["Origin"] = extension_id
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 200) 
+        self.assertEquals(response.headers["Access-Control-Allow-Origin"], "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf")
 
 class LoginTest(unittest.TestCase, helpers.DataStoreTestHelper):
 

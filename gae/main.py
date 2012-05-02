@@ -10,8 +10,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 
 
-ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com"]
-
+ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"]
 
 class User(db.Model):
   account = db.UserProperty(required=True)
@@ -51,12 +50,17 @@ jinja_environment = jinja2.Environment(
 routes = []
 
 
-def login_required_unless_forbidden(fn):
+def make_sharable(fn):
   def wrap(*args):
     callee = args[0]
     callee.make_sharable()
+    return fn(*args)
+  return wrap
 
+def login_required_unless_forbidden(fn):
+  def wrap(*args):
     if not users.get_current_user():
+      callee = args[0]
       callee.response.status = 403
       callee.response.out.write('Need to be logged in.')
       return
@@ -75,13 +79,20 @@ def body_json_of(request, mandated_fields):
 
 class ResourceSharableHandler(webapp2.RequestHandler):
   def make_sharable(self):
-    self.response.headers.add_header("Access-Control-Allow-Origin", " ".join(ALLOWED_DOMAINS))
+    origin = self.request.headers.get("Origin")
+    if origin in ALLOWED_DOMAINS:
+      # HACK: It looks chrome extension doesn't recognize space deliminated values.
+      self.response.headers.add_header("Access-Control-Allow-Origin", origin)
+    else:
+      self.response.headers.add_header("Access-Control-Allow-Origin", " ".join(ALLOWED_DOMAINS))
+    self.response.headers.add_header("Access-Control-Allow-Credentials", "true")
 
-  def option(self):
+  def options(self):
     self.make_sharable()
   
 
 class ReflectHandler(ResourceSharableHandler):
+  @make_sharable
   @login_required_unless_forbidden
   def get(self):
     me = User.ensure_current()
@@ -90,6 +101,7 @@ class ReflectHandler(ResourceSharableHandler):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(json.dumps(result))
 
+  @make_sharable
   @login_required_unless_forbidden
   def post(self):
     req = body_json_of(self.request, ["source", "note"])
@@ -102,7 +114,9 @@ class ReflectHandler(ResourceSharableHandler):
 routes.append(('/reflect', ReflectHandler))
 
 
+# Omits CORS headers to make this accessible from extension pages.
 class PingHandler(ResourceSharableHandler):
+  @make_sharable
   @login_required_unless_forbidden
   def get(self):
     self.response.out.write(json.dumps({}))
