@@ -1,3 +1,30 @@
+/*
+ * JavaScript Pretty Date
+ * Copyright (c) 2011 John Resig (ejohn.org)
+ * Licensed under the MIT and GPL licenses.
+ */
+
+// Takes an ISO time and returns a string representing how
+// long ago the date represents.
+function prettyDate(date){
+	var diff = (((new Date()).getTime() - date.getTime()) / 1000),
+	    day_diff = Math.floor(diff / 86400);
+			
+	if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 )
+		return undefined;
+			
+	return day_diff == 0 && (
+			diff < 60 && "just now" ||
+			diff < 120 && "1 minute ago" ||
+			diff < 3600 && Math.floor( diff / 60 ) + " minutes ago" ||
+			diff < 7200 && "1 hour ago" ||
+			diff < 86400 && Math.floor( diff / 3600 ) + " hours ago") ||
+		day_diff == 1 && "Yesterday" ||
+		day_diff < 7 && day_diff + " days ago" ||
+		day_diff < 31 && Math.ceil( day_diff / 7 ) + " weeks ago";
+}
+
+//
 
 var Ha = function() {
 };
@@ -18,6 +45,7 @@ Ha.AskingView = Backbone.View.extend(
       this.button = this.el.find(".answering-button");
       this.button.on("click", this.buttonDidClick.bind(this));
 
+      this.textarea.focus();
       this.textDidCange(null);
     },
 
@@ -32,6 +60,18 @@ Ha.AskingView = Backbone.View.extend(
       });
     }
   });
+
+Ha.makePresentationForReflectingItem = function(item) {
+  var dateStr = new Date(Date.parse(item.created_at)).toString().match(/\S+ \S+ \S+ \S+ \d+:\d+/)[0];
+
+  return {
+    readableSource: item.source.match(/https?:\/\/(.*?)\//)[1],
+    fullSource: item.source,
+    readableTime: dateStr,
+    note: item.note
+  };
+
+};
 
 Ha.ReflectingView = Backbone.View.extend(
   {
@@ -50,7 +90,10 @@ Ha.ReflectingView = Backbone.View.extend(
       var itemRoot = $("<div>");
       itemRoot[0].dataset.id = item.id;
       itemRoot[0].className = "reflect-list-item";
-      itemRoot.html(Mustache.to_html($("#reflectingItemTemplate").html(), item));
+      itemRoot.html(
+	Mustache.to_html(
+	  $("#reflectingItemTemplate").html(), 
+	  Ha.makePresentationForReflectingItem(item)));
       this.listRoot.append(itemRoot);
     },
 

@@ -6,7 +6,10 @@ var DEFAULT_OPTIONS = {
   patterns: [
     "^http(s)?://(www\\.)?facebook\.com/",
     "^http(s)?://(www\\.)?twitter\\.com/",
-    "^https://plus\\.google\\.com/"
+    "^https://plus\\.google\\.com/",
+    "^http(s)?://mixi\\.jp/",
+    "^http(s)?://b\\.hatena\\.ne\\.jp/",
+    "^http(s)?://d\\.hatena\\.ne\\.jp/$"
   ],
 
   destinationTemplate: "http://localhost:8080/?%s",

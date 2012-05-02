@@ -34,7 +34,7 @@ class Reflect(db.Model):
   created_at = db.DateTimeProperty(auto_now_add=True)
 
   def to_dict(self):
-    return { "id": str(self.key()), "source": self.source, "note": self.note, "created_at": str(self.created_at) }
+    return { "id": str(self.key()), "source": self.source, "note": self.note, "created_at": self.created_at.ctime() }
 
   @classmethod
   def count_for(cls, me):

@@ -8,6 +8,9 @@ handlers:
 - url: /(reflecting|welcome)?
   static_files: public/index.html
   upload: public/index.html
+- url: /favicon.ico
+  static_files: public/favicon.ico
+  upload: public/favicon.ico
 - url: /stylesheets
   static_dir: public/stylesheets
 - url: /js
