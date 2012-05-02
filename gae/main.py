@@ -103,7 +103,7 @@ class ReflectHandler(ResourceSharableHandler):
 
   @make_sharable
   @login_required_unless_forbidden
-  def post(self):
+  def put(self):
     req = body_json_of(self.request, ["source", "note"])
     me = User.ensure_current()
     data = Reflect(owner=me, source=req.get("source"), note=req.get("note"))

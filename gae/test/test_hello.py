@@ -22,6 +22,7 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
         self.assertEquals(response.status_int, 403, 
                           "Needs to be authenticated")
         request = webapp2.Request.blank('/reflect', POST="")
+        request.method = "PUT"
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 403, 
                           "Needs to be authenticated")
@@ -37,6 +38,7 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
         me = User.ensure_current()
         self.assertEquals(0, Reflect.count_for(me))
         request = webapp2.Request.blank('/reflect', POST='{"note":"Hello","source":"http://google.com/"}')
+        request.method = "PUT"
         request.content_type = "application/json"
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 200)

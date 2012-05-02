@@ -29,6 +29,13 @@ function prettyDate(date){
 var Ha = function() {
 };
 
+Ha.API_BASE = "http://habitalt.appspot.com";
+
+Ha.getApiBase = function() {
+  if (window.location.hostname == "localhost")
+    return "http://localhost:8080";
+  return Ha.API_BASE;
+};
 
 Ha.AskingView = Backbone.View.extend(
   {
@@ -187,7 +194,7 @@ Ha.App = Backbone.Router.extend(
     routes: {
       "reflecting": "reflecting",
       "welcome": "welcome",
-      "u?:url": "index",
+      "u?:url": "asking",
       "": "index"
     },
 
@@ -209,17 +216,25 @@ Ha.App = Backbone.Router.extend(
       this.renderOnly([this._welcomeView]);
     },
 
-    reflecting: function() {
+    reflectingWithoutLoad: function() {
       this.checkLogin();
       this.renderOnly([this._reflectingView, this._loginoutView]);
+    },
+
+    reflecting: function() {
+      this.reflectingWithoutLoad();
       this.loadReflectList();
     },
 
-    index: function(path) {
+    asking: function(path) {
       this._source = path ? decodeURIComponent(path) : null;
       this.checkLogin();
       this.renderOnly([this._askingView, this._loginoutView]);
       // We need this to handle backward history navs.
+    },
+
+    index: function() {
+      this.checkLogin();
     },
 
     addView: function(view) {
@@ -239,23 +254,26 @@ Ha.App = Backbone.Router.extend(
     },
 
     postReflect: function(topost) {
+      this.navigate("reflecting", { trigger: false });
+      this.reflectingWithoutLoad();
+
       $.ajax(
 	{
-	  url: "/reflect",
-	  type: "POST",
+	  url: Ha.getApiBase() + "/reflect",
+	  type: "PUT",
 	  contentType: "application/json",
 	  data: JSON.stringify(topost),
 	  xhrFields: { withCredentials: true }
 	}).done(
 	  function() {
-	    this.navigate("reflecting", { trigger: true });
+	    this.loadReflectList();
 	  }.bind(this));
     },
 
     loadReflectList: function() {
       $.ajax(
 	{
-	  url: "/reflect",
+	  url: Ha.getApiBase() + "/reflect",
 	  type: "GET",
 	  dataType: "json",
 	  xhrFields: { withCredentials: true }
@@ -287,7 +305,7 @@ Ha.App = Backbone.Router.extend(
 
       $.ajax(
 	{
-	  url: "/ping",
+	  url: Ha.getApiBase() + "/ping",
 	  type: "GET",
 	  dataType: "json",
 	  xhrFields: { withCredentials: true },
@@ -307,6 +325,5 @@ Ha.App = Backbone.Router.extend(
 $(document).ready(
   function() {
     var app = new Ha.App();
-    //Backbone.history.start({ pushState: true });
     Backbone.history.start();
 });
