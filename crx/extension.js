@@ -12,7 +12,7 @@ var DEFAULT_OPTIONS = {
     "^http(s)?://d\\.hatena\\.ne\\.jp/$"
   ],
 
-  destinationTemplate: "http://localhost:8080/?%s",
+  destinationTemplate: "http://localhost:8080/#u?%s",
   siteUrl: "http://localhost:8080/"
 };
 

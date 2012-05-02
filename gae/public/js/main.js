@@ -62,7 +62,7 @@ Ha.AskingView = Backbone.View.extend(
   });
 
 Ha.makePresentationForReflectingItem = function(item) {
-  var dateStr = new Date(Date.parse(item.created_at)).toString().match(/\S+ \S+ \S+ \S+ \d+:\d+/)[0];
+  var dateStr = Ha.dateToStringWithSecs(new Date(Date.parse(item.created_at)));
 
   return {
     readableSource: item.source.match(/https?:\/\/(.*?)\//)[1],
@@ -71,6 +71,37 @@ Ha.makePresentationForReflectingItem = function(item) {
     note: item.note
   };
 
+};
+
+Ha.instantiateTemplate = function(templateId, className, vars) {
+  var itemRoot = $("<div>");
+  itemRoot[0].className = className;
+  itemRoot.html(
+    Mustache.to_html($(templateId).html(), vars));
+  return itemRoot;
+};
+
+Ha.listGroupByDate = function(list) {
+  var result = {};
+  for (var i = 0; i < list.length; ++i) {
+    var item = list[i];
+    // XXX: should take care of timezones.
+    var createdAtMs = Date.parse(item.created_at);
+    var groupKey = Math.round(-createdAtMs/(24*60*60*1000)).toString();
+    if (!(groupKey in result))
+      result[groupKey] = [];
+    result[groupKey].push(item);
+  }
+
+  return result;
+};
+
+Ha.dateToStringWithSecs = function(date) {
+    return date.toString().match(/\S+ \S+ \S+ \S+ \d+:\d+/)[0];
+};
+
+Ha.dateToStringWithDay = function(date) {
+    return date.toString().match(/\S+ \S+ \S+ \S+/)[0];
 };
 
 Ha.ReflectingView = Backbone.View.extend(
@@ -86,19 +117,29 @@ Ha.ReflectingView = Backbone.View.extend(
       this.listRoot = this.el.find(".reflecting-list");
     },
 
+    addListDailyHeader: function(date) {
+      var itemRoot = Ha.instantiateTemplate(
+	"#reflectingDailyHeader", "reflect-list-daily-header", {
+	   date: Ha.dateToStringWithDay(date)
+	});
+      this.listRoot.append(itemRoot);
+    },
+
     addListItem: function(item) {
-      var itemRoot = $("<div>");
+      var itemRoot = Ha.instantiateTemplate(
+	"#reflectingItemTemplate", "reflect-list-item",
+	Ha.makePresentationForReflectingItem(item));
       itemRoot[0].dataset.id = item.id;
-      itemRoot[0].className = "reflect-list-item";
-      itemRoot.html(
-	Mustache.to_html(
-	  $("#reflectingItemTemplate").html(), 
-	  Ha.makePresentationForReflectingItem(item)));
       this.listRoot.append(itemRoot);
     },
 
     listWasLoaded: function(list) {
-      list.forEach(this.addListItem.bind(this));
+      var itemsByDate = Ha.listGroupByDate(list);
+      for (var key in itemsByDate) {
+	var items = itemsByDate[key];
+	this.addListDailyHeader(new Date(Date.parse(items[0].created_at)));
+	items.forEach(this.addListItem.bind(this));
+      }
     }
   });
 
@@ -146,7 +187,7 @@ Ha.App = Backbone.Router.extend(
     routes: {
       "reflecting": "reflecting",
       "welcome": "welcome",
-      "?:url": "index",
+      "u?:url": "index",
       "": "index"
     },
 
@@ -263,5 +304,6 @@ Ha.App = Backbone.Router.extend(
 $(document).ready(
   function() {
     var app = new Ha.App();
-    Backbone.history.start({ pushState: true });
+    //Backbone.history.start({ pushState: true });
+    Backbone.history.start();
 });

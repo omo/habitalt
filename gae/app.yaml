@@ -5,7 +5,7 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /(reflecting|welcome)?
+- url: /(reflecting|welcome|u)?
   static_files: public/index.html
   upload: public/index.html
 - url: /favicon.ico
