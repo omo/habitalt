@@ -29,7 +29,8 @@ body {
 
 // http://colorschemedesigner.com/#3H21Tw0w0w0w0
 
-@theme-text-border-size: 3px;
+@theme-text-border-size: 2px;
+@theme-text-border-radius: 3px;
 @theme-font-size-huge: 36pt;
 @theme-font-size-large: 22px;
 @theme-font-size-normal: 18px;
@@ -257,7 +258,7 @@ body {
     margin: 0.5em 0em 0em 0em;
     border-bottom-width: 0px;
     padding-top: @theme-text-border-size;
-    border-radius: 0.2em;
+    border-radius: @theme-text-border-radius;
 }
 
 .reflect-list-item {
@@ -265,6 +266,7 @@ body {
     .reflect-list-item-base;
 
     .ref-note {
+	border-radius: @theme-text-border-radius @theme-text-border-radius 0em 0em;
 	.theme-text(@theme-font-size-large);
 	margin: 0px @theme-text-border-size @theme-text-border-size @theme-text-border-size;
 	padding: 1em;
