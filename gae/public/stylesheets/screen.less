@@ -29,9 +29,9 @@ body {
 
 // http://colorschemedesigner.com/#3H21Tw0w0w0w0
 
-@theme-text-border-size: 2px;
+@theme-text-border-size: 3px;
 @theme-font-size-huge: 36pt;
-@theme-font-size-large: 24px;
+@theme-font-size-large: 22px;
 @theme-font-size-normal: 18px;
 @theme-font-size-small: 12px;
 @theme-font-size-tiny: 8px;
@@ -110,15 +110,17 @@ body {
     span:nth-child(4) { color: lighten(@fg-base, 30%); }
 }
 
+
 .theme-button {
-    .theme-type-plain;
-}
+    .theme-type-plain(@theme-font-size-large);
+} 
 
 .theme-textarea {
+    .theme-type-plain(@theme-font-size-large);
+
     border-radius: 0.2em;
     border-style: solid;
     border-color: #052C6E;
-    .theme-type-plain;
 
     &:focus {
 	border-color: #4479D4;
@@ -127,10 +129,9 @@ body {
     }
 }
 
-.theme-text {
-    .theme-type-plain;
+.theme-text(@font-size: @theme-font-size-normal) {
+    .theme-type-plain(@font-size);
     font-weight: normal; // For resetting h1.
-    font-size: @theme-font-size-normal;
     color: #222;
     background-color: white;
 }
@@ -220,7 +221,7 @@ body {
 	padding: 0.5em;
 	margin: 0px;
         width:  100%;
-        height: 20em;
+        height: 16em;
 	border-width: @theme-text-border-size;
     }
     
@@ -264,7 +265,7 @@ body {
     .reflect-list-item-base;
 
     .ref-note {
-	.theme-text;
+	.theme-text(@theme-font-size-large);
 	margin: 0px @theme-text-border-size @theme-text-border-size @theme-text-border-size;
 	padding: 1em;
     }
