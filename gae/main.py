@@ -9,8 +9,8 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 
-
-ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"]
+ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "http://www.habitalt.me", "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"]
+REDIRECT_HOME = "http://localhost:8080/" if 0 <= os.environ['SERVER_SOFTWARE'].find('Development')  else "http://www.habitalt.me/"
 
 class User(db.Model):
   account = db.UserProperty(required=True)
@@ -139,17 +139,17 @@ routes.append(('/ping', PingHandler))
 class LoginHandler(webapp2.RequestHandler):
   def get(self):
     if not users.get_current_user():
-      self.redirect(users.create_login_url("/"))
+      self.redirect(users.create_login_url(REDIRECT_HOME))
       return
-    self.redirect("/")
+    self.redirect(REDIRECT_HOME)
 routes.append(('/login', LoginHandler))
 
 class LogoutHandler(webapp2.RequestHandler):
   def get(self):
     if users.get_current_user():
-      self.redirect(users.create_logout_url("/"))
+      self.redirect(users.create_logout_url(REDIRECT_HOME))
       return
-    self.redirect("/")
+    self.redirect(REDIRECT_HOME)
 routes.append(('/logout', LogoutHandler))
 
 

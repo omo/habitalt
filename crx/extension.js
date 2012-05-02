@@ -25,7 +25,7 @@ var DEFAULT_OPTIONS = {
 
   destinationTemplate: "http://habitalt.appspot.com/#u?%s",
   apiUrl: "http://habitalt.appspot.com/",
-  siteUrl: "http://habitalt.appspot.com/"
+  siteUrl: "http://www.habitalt.me/"
 };
 
 var Habitalt = function() {

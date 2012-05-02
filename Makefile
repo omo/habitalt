@@ -1,9 +1,12 @@
 
 
+S3_BUCKET_PUBLIC   = s3://www.habitalt.me
 CRX_JS_THIRD_PARTY = crx/third_party
+GAE_PUBLIC         = gae/public/
 GAE_JS_THIRD_PARTY = gae/public/js/third_party
 GAESDK_PATH = ~/local/google_appengine
 PYTHON=python
+PACK_CRX_KEY = ${HOME}/memo/keys/crx.pem
 
 build: ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 
@@ -24,12 +27,17 @@ ${CRX_JS_THIRD_PARTY}:
 pytest:
 	cd gae && ${PYTHON} test.py ${GAESDK_PATH}
 
-deploy:
+s3sync:
+	s3cmd sync ${GAE_PUBLIC} ${S3_BUCKET_PUBLIC}
+deploy: build
 	${GAESDK_PATH}/appcfg.py update ./gae
+	make s3sync
+package: build
+	google-chrome --pack-extension=./crx --pack-extension-key=${PACK_CRX_KEY}
 clean: 
 	-rm -r ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 
 bootstrap:
 	npm install
 
-.PHONY: bootstrap clean
+.PHONY: bootstrap clean s3sync deploy
