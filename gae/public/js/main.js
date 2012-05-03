@@ -29,6 +29,13 @@ function prettyDate(date){
 var Ha = function() {
 };
 
+Ha.TZ_OFFSET = (new Date()).getTimezoneOffset() * 60*1000;
+
+Ha.toPrintableDateFromString = function(str) {
+  // This approach seems suck...
+  return new Date(Date.parse(str) - Ha.TZ_OFFSET);
+};
+
 Ha.URL = {
   API_BASE: "http://habitalt.appspot.com",
 
@@ -84,7 +91,7 @@ Ha.AskingView = Backbone.View.extend(
   });
 
 Ha.makePresentationForReflectingItem = function(item) {
-  var dateStr = Ha.dateToStringWithSecs(new Date(Date.parse(item.created_at)));
+  var dateStr = Ha.dateToStringWithSecs(Ha.toPrintableDateFromString(item.created_at));
 
   return {
     readableSource: item.source.match(/https?:\/\/(.*?)\//)[1],
@@ -168,7 +175,7 @@ Ha.ReflectingView = Backbone.View.extend(
 	var itemsByDate = Ha.listGroupByDate(list);
 	for (var key in itemsByDate) {
 	  var items = itemsByDate[key];
-	  this.addListDailyHeader(new Date(Date.parse(items[0].created_at)));
+	  this.addListDailyHeader(Ha.toPrintableDateFromString(items[0].created_at));
 	  items.forEach(this.addListItem.bind(this));
 	}
       }	else {
@@ -279,9 +286,10 @@ Ha.App = Backbone.Router.extend(
 	function(v) {
 	  if (viewsToRender.indexOf(v) < 0)
 	    v.el.hide();
-	  else
+	  else {
 	    v.el.show();
 	    v.render();
+	  }
 	}.bind(this));
     },
 

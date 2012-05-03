@@ -6,6 +6,13 @@ GAE_PUBLIC         = gae/public/
 GAE_JS_THIRD_PARTY = gae/public/js/third_party
 GAESDK_PATH = ~/local/google_appengine
 PYTHON=python
+CHROME=google-chrome
+PACK_CRX_KEY = ${HOME}/memo/keys/crx.pem
+
+CRX_MANIFEST = crx/manifest.json
+CRX_BIN_ZIP = habitalt.zip
+CRX_BIN_DIR = gae/public
+CRX_BIN_CRX = ${CRX_BIN_DIR}/crx
 
 build: ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 
@@ -26,17 +33,30 @@ ${CRX_JS_THIRD_PARTY}:
 pytest:
 	cd gae && ${PYTHON} test.py ${GAESDK_PATH}
 
+package: build ${CRX_BIN_ZIP} ${CRX_BIN_CRX}
+
+${CRX_BIN_ZIP}: ${CRX_MANIFEST}
+	zip -r $@ ./crx
+${CRX_BIN_CRX}: ${CRX_MANIFEST}
+	${CHROME} --pack-extension=./crx --pack-extension-key=${PACK_CRX_KEY}
+	mv crx.crx ${CRX_BIN_CRX}
+
+deploy: build package 
+	make gaeup
+	make s3sync
+
 s3sync:
 	s3cmd sync --acl-public ${GAE_PUBLIC} ${S3_BUCKET_PUBLIC}
-deploy: build
+s3fixup:
+	s3cmd put --acl-public --mime-type="application/x-chrome-extension" ${CRX_BIN_CRX} ${S3_BUCKET_PUBLIC}
+gaeup:
 	${GAESDK_PATH}/appcfg.py update ./gae
-	make s3sync
-package: build
-	zip -r habitalt.zip crx
+
 clean: 
 	-rm -r ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
+	-rm ${CRX_BIN_ZIP} ${CRX_BIN_CRX}
 
 bootstrap:
 	npm install
 
-.PHONY: bootstrap clean s3sync deploy
+.PHONY: bootstrap clean s3sync d3fixup deploy

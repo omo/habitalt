@@ -3,6 +3,7 @@
   "version": "0.1.2",
   "manifest_version": 2,
   "description": "An anti-habitual site blocker.",
+  "update_url": "http://myhost.com/mytestextension/updates.xml",
   "icons": {
     "16" : "icon16.png",
     "48" : "icon48.png",

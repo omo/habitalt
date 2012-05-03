@@ -69,10 +69,10 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
     def test_get_with_origin(self):
         self.giveUser()
         request = webapp2.Request.blank('/reflect')
-        request.headers["Origin"] = main.EXTENSION_URL
+        request.headers["Origin"] = main.EXTENSION_URLS[0]
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 200) 
-        self.assertEquals(response.headers["Access-Control-Allow-Origin"], main.EXTENSION_URL)
+        self.assertEquals(response.headers["Access-Control-Allow-Origin"], main.EXTENSION_URLS[0])
 
 class LoginTest(unittest.TestCase, helpers.DataStoreTestHelper):
 

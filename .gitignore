@@ -1,3 +1,5 @@
 node_modules/
 *.pyc
 habitalt.zip
+crx.crx
+gae/public/crx
