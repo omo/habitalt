@@ -19,8 +19,8 @@ class DataStoreTestHelper:
         self.testbed.deactivate()
         if os.environ.get('USER_EMAIL'):
             del os.environ['USER_EMAIL']
-        if os.environ.get('USER_EMAIL'):
-            del os.environ['USER_EMAIL']
+        if os.environ.get('USER_ID'):
+            del os.environ['USER_ID']
 
     def giveUser(self):
         os.environ['USER_EMAIL'] = 'alice@example.com'

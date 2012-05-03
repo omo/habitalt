@@ -1,16 +1,23 @@
 
 import os
+import Cookie
 import webapp2
 import webob.exc as exc
 import jinja2
 import json
+import urllib
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 
+def is_devserver():
+  if not os.environ.get('SERVER_SOFTWARE'):
+    return True # unit test case
+  return 0 <= os.environ['SERVER_SOFTWARE'].find('Development')
+
 ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "http://www.habitalt.me", "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"]
-REDIRECT_HOME = "http://localhost:8080/" if 0 <= os.environ['SERVER_SOFTWARE'].find('Development')  else "http://www.habitalt.me/"
+REDIRECT_HOME = "http://localhost:8080/" if is_devserver()  else "http://www.habitalt.me/"
 
 class User(db.Model):
   account = db.UserProperty(required=True)
@@ -58,20 +65,17 @@ def make_sharable(fn):
 def login_required_unless_forbidden(fn):
   def wrap(*args):
     if not users.get_current_user():
-      callee = args[0]
-      callee.response.status = 403
-      callee.response.out.write('Need to be logged in.')
-      return
+      raise exc.HTTPForbidden('Need to be logged in.')
     return fn(*args)
   return wrap
 
 def body_json_of(request, mandated_fields):
-    if request.content_type != "application/json":
-      raise exc.HTTPClientError("Needs JSON")
-    req = json.loads(request.body)
-    for f in mandated_fields:
-      if not req.get(f):
-        raise exc.HTTPClientError("Needs property %s" % f)
+  if request.content_type != "application/json":
+    raise exc.HTTPClientError("Needs JSON")
+  req = json.loads(request.body)
+  for f in mandated_fields:
+    if not req.get(f):
+      raise exc.HTTPClientError("Needs property %s" % f)
     return req
 
 
@@ -84,10 +88,13 @@ class ResourceSharableHandler(webapp2.RequestHandler):
     else:
       self.response.headers.add_header("Access-Control-Allow-Origin", " ".join(ALLOWED_DOMAINS))
     self.response.headers.add_header("Access-Control-Allow-Credentials", "true")
+    self.response.headers.add_header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS") # XXX: Some subclasses may want to limit this.
+    self.response.headers.add_header("Access-Control-Allow-Headers",
+                                     "Content-Type, User-Agent, If-Modified-Since, Cache-Control, Pragma");
 
   def options(self):
     self.make_sharable()
-  
+
 
 class ReflectHandler(ResourceSharableHandler):
   @make_sharable
@@ -98,7 +105,7 @@ class ReflectHandler(ResourceSharableHandler):
     result = { "list": [ f.to_dict() for f in found ] }
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(json.dumps(result))
-
+    
   @make_sharable
   @login_required_unless_forbidden
   def put(self):
@@ -127,11 +134,12 @@ class ReflectHandler(ResourceSharableHandler):
 routes.append(('/reflect', ReflectHandler))
 
 
-# Omits CORS headers to make this accessible from extension pages.
 class PingHandler(ResourceSharableHandler):
   @make_sharable
   @login_required_unless_forbidden
   def get(self):
+    self.response.headers["Pragma"]="no-cache"
+    self.response.headers["Cache-Control"]="no-cache, no-store, must-revalidate, pre-check=0, post-check=0"
     self.response.out.write(json.dumps({}))
 routes.append(('/ping', PingHandler))
 
@@ -139,17 +147,50 @@ routes.append(('/ping', PingHandler))
 class LoginHandler(webapp2.RequestHandler):
   def get(self):
     if not users.get_current_user():
-      self.redirect(users.create_login_url(REDIRECT_HOME))
+      # It looks GAE doesn't create login url for non-gae urls.
+      another_redirect_home = ("/redirect?to=" + urllib.quote(REDIRECT_HOME)).encode('utf-8')
+      self.redirect(users.create_login_url(another_redirect_home))
       return
     self.redirect(REDIRECT_HOME)
 routes.append(('/login', LoginHandler))
 
+
+class RedirectHandler(webapp2.RequestHandler):
+  def is_allowed_redirect(self, url):
+    for d in ALLOWED_DOMAINS:
+      if 0 == url.find(d):
+        return True
+    return False
+
+  def get(self):
+    to = self.request.get("to");
+    if (None == to or not self.is_allowed_redirect(to)):
+      raise exc.HTTPClientError("Bad URL %s" % to)
+    self.redirect(to.encode("utf-8"))
+routes.append(('/redirect', RedirectHandler))
+
+# - http://ptspts.blogspot.jp/2011/12/how-to-log-out-from-appengine-app-only.html
+# - Hope logout with openid works
+#   https://groups.google.com/forum/?fromgroups#!topic/google-appengine/bQT8F2qh6PM
+#   http://code.google.com/p/googleappengine/issues/detail?id=3301
 class LogoutHandler(webapp2.RequestHandler):
   def get(self):
-    if users.get_current_user():
+    if not users.get_current_user():
+      self.redirect(REDIRECT_HOME)
+      return
+    if is_devserver():
       self.redirect(users.create_logout_url(REDIRECT_HOME))
       return
+    cookie = Cookie.SimpleCookie()
+    cookie['ACSID'] = ''
+    cookie['ACSID']['expires'] = -86400
+    self.response.headers.add_header(*cookie.output().split(': ', 1))
+    cookie = Cookie.SimpleCookie()
+    cookie['SACSID'] = ''
+    cookie['SACSID']['expires'] = -86400
+    self.response.headers.add_header(*cookie.output().split(': ', 1))
     self.redirect(REDIRECT_HOME)
+
 routes.append(('/logout', LogoutHandler))
 
 

@@ -28,7 +28,7 @@ pytest:
 	cd gae && ${PYTHON} test.py ${GAESDK_PATH}
 
 s3sync:
-	s3cmd sync ${GAE_PUBLIC} ${S3_BUCKET_PUBLIC}
+	s3cmd sync --acl-public ${GAE_PUBLIC} ${S3_BUCKET_PUBLIC}
 deploy: build
 	${GAESDK_PATH}/appcfg.py update ./gae
 	make s3sync

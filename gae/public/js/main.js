@@ -29,13 +29,28 @@ function prettyDate(date){
 var Ha = function() {
 };
 
-Ha.API_BASE = "http://habitalt.appspot.com";
+Ha.URL = {
+  API_BASE: "http://habitalt.appspot.com",
 
-Ha.getApiBase = function() {
-  if (window.location.hostname == "localhost")
-    return "http://localhost:8080";
-  return Ha.API_BASE;
+  getApiBase: function() {
+    if (window.location.hostname == "localhost")
+      return "http://localhost:8080";
+    return Ha.URL.API_BASE;
+  },
+
+  getApiURL: function(path) {
+    return Ha.URL.getApiBase() + path;
+  },
+
+  addPath: function(pathName) {
+    Object.defineProperty(Ha.URL, pathName, { get: Ha.URL.getApiURL.bind(Ha.URL, "/" + pathName) });
+  }
 };
+
+Ha.URL.addPath("logout");
+Ha.URL.addPath("login");
+Ha.URL.addPath("reflect");
+Ha.URL.addPath("ping");
 
 Ha.AskingView = Backbone.View.extend(
   {
@@ -157,7 +172,6 @@ Ha.ReflectingView = Backbone.View.extend(
 	  items.forEach(this.addListItem.bind(this));
 	}
       }	else {
-	console.log("here");
 	this.listRoot.append(
 	  Ha.instantiateTemplate(
 	    "#reflectingNoItemTemplate", "reflect-no-item", {}));
@@ -169,6 +183,8 @@ Ha.LoginoutView = Backbone.View.extend(
   {
     initialize: function(opts, app) {
       this.el = $(".loginout");
+      this.el.find(".login").attr("href", Ha.URL.login);
+      this.el.find(".logout").attr("href", Ha.URL.logout);
       this._app = app;
       this.loginStatusDidUpdated(app.isLogin());
     },
@@ -199,6 +215,7 @@ Ha.WelcomeView = Backbone.View.extend(
     render: function() {
       var viewParams = {};
       this.el.html(Mustache.to_html($("#welcomeViewTemplate").html(), viewParams));
+      this.el.find(".login").attr("href", Ha.URL.login);
     }
   });
 
@@ -274,7 +291,7 @@ Ha.App = Backbone.Router.extend(
 
       $.ajax(
 	{
-	  url: Ha.getApiBase() + "/reflect",
+	  url: Ha.URL.reflect,
 	  type: "PUT",
 	  contentType: "application/json",
 	  data: JSON.stringify(topost),
@@ -288,7 +305,7 @@ Ha.App = Backbone.Router.extend(
     deleteReflectItem: function(id) {
       $.ajax(
 	{
-	  url: Ha.getApiBase() + "/reflect?id=" + id,
+	  url: Ha.URL.reflect + "?id=" + id,
 	  type: "DELETE",
 	  xhrFields: { withCredentials: true }
 	}).done(
@@ -300,7 +317,7 @@ Ha.App = Backbone.Router.extend(
     loadReflectList: function() {
       $.ajax(
 	{
-	  url: Ha.getApiBase() + "/reflect",
+	  url: Ha.URL.reflect,
 	  type: "GET",
 	  dataType: "json",
 	  xhrFields: { withCredentials: true }
@@ -332,19 +349,17 @@ Ha.App = Backbone.Router.extend(
 
       $.ajax(
 	{
-	  url: Ha.getApiBase() + "/ping",
+	  url: Ha.URL.ping,
 	  type: "GET",
 	  dataType: "json",
-	  xhrFields: { withCredentials: true },
-	  statusCode: {
-	    403: function() {
-	      this.loginWasChecked(false);
-	    }.bind(this)
-	  }
+	  xhrFields: { withCredentials: true }
 	}).done(
 	  function(result) {
 	    this.loginWasChecked(true);
-	  }.bind(this));
+	  }.bind(this)).error(
+	    function (jqXHR, textStatus, errorThrown) {
+	      this.loginWasChecked(false);
+	    }.bind(this));
     }
 
 });

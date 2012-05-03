@@ -23,7 +23,7 @@ var DEFAULT_OPTIONS = {
     "https://*.hatena.ne.jp/*"
   ],
 
-  destinationTemplate: "http://habitalt.appspot.com/#u?%s",
+  destinationTemplate: "http://www.habitalt.me/#u?%s",
   apiUrl: "http://habitalt.appspot.com/",
   siteUrl: "http://www.habitalt.me/"
 };

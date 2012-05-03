@@ -15,12 +15,12 @@ class ReflectTest(unittest.TestCase, helpers.DataStoreTestHelper):
 
     def tearDown(self):
         self.tearDownBed()
-
+        
     def test_auth(self):
         request = webapp2.Request.blank('/reflect')
         response = request.get_response(main.app)
-        self.assertEquals(response.status_int, 403, 
-                          "Needs to be authenticated")
+        self.assertEquals(response.status_int, 403)
+
         request = webapp2.Request.blank('/reflect', POST="")
         request.method = "PUT"
         response = request.get_response(main.app)
@@ -92,6 +92,7 @@ class LoginTest(unittest.TestCase, helpers.DataStoreTestHelper):
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 302)
 
+
     def test_logout(self):
         request = webapp2.Request.blank('/logout')
         response = request.get_response(main.app)
@@ -100,3 +101,25 @@ class LoginTest(unittest.TestCase, helpers.DataStoreTestHelper):
         request = webapp2.Request.blank('/logout')
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 302)
+
+
+class RedirectTest(unittest.TestCase, helpers.DataStoreTestHelper):
+
+    def setUp(self):
+        self.setUpBed()
+
+    def tearDown(self):
+        self.tearDownBed()
+
+    def test_hello(self):
+        request = webapp2.Request.blank('/redirect')
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 400)
+        self.giveUser()
+        request = webapp2.Request.blank('/redirect?to=http%3A%2F%2Fwww.habitalt.me%2F')
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 302)
+        self.assertEquals(response.headers["Location"], "http://www.habitalt.me/")
+        request = webapp2.Request.blank('/redirect?to=http%3A%2F%2Fwww.example.com%2F')
+        response = request.get_response(main.app)
+        self.assertEquals(response.status_int, 400)
