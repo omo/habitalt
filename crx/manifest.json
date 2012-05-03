@@ -1,10 +1,12 @@
 {
   "name": "Habitalt",
-  "version": "0.1",
+  "version": "0.1.2",
   "manifest_version": 2,
-  "description": "A site blocking tool which helps your self reflection.",
-  "browser_action": {
-    "default_icon": "icon.png"
+  "description": "An anti-habitual site blocker.",
+  "icons": {
+    "16" : "icon16.png",
+    "48" : "icon48.png",
+    "128": "icon128.png"
   },
 
  "options_page": "options.html",

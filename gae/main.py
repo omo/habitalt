@@ -16,7 +16,8 @@ def is_devserver():
     return True # unit test case
   return 0 <= os.environ['SERVER_SOFTWARE'].find('Development')
 
-ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "http://www.habitalt.me", "chrome-extension://oncoblpnhjikioeiokkcaeckgcncbfcf"]
+EXTENSION_URL = "chrome-extension://fhbpiijddhnhoidblhlnaibjfjoolijl"
+ALLOWED_DOMAINS = ["http://localhost:8080", "http://habitalt.appspot.com", "http://www.habitalt.me", EXTENSION_URL]
 REDIRECT_HOME = "http://localhost:8080/" if is_devserver()  else "http://www.habitalt.me/"
 
 class User(db.Model):

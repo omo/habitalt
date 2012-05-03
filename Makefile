@@ -6,7 +6,6 @@ GAE_PUBLIC         = gae/public/
 GAE_JS_THIRD_PARTY = gae/public/js/third_party
 GAESDK_PATH = ~/local/google_appengine
 PYTHON=python
-PACK_CRX_KEY = ${HOME}/memo/keys/crx.pem
 
 build: ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 
@@ -33,7 +32,7 @@ deploy: build
 	${GAESDK_PATH}/appcfg.py update ./gae
 	make s3sync
 package: build
-	google-chrome --pack-extension=./crx --pack-extension-key=${PACK_CRX_KEY}
+	zip -r habitalt.zip crx
 clean: 
 	-rm -r ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
 
