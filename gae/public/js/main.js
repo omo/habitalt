@@ -116,8 +116,7 @@ Ha.listGroupByDate = function(list) {
   var result = {};
   for (var i = 0; i < list.length; ++i) {
     var item = list[i];
-    // XXX: should take care of timezones.
-    var createdAtMs = Date.parse(item.created_at);
+    var createdAtMs = Ha.toPrintableDateFromString(item.created_at).getTime();
     var groupKey = Math.round(-createdAtMs/(24*60*60*1000)).toString();
     if (!(groupKey in result))
       result[groupKey] = [];
