@@ -62,29 +62,31 @@ Ha.URL.addPath("ping");
 Ha.AskingView = Backbone.View.extend(
   {
     initialize: function(opts, app) {
-      this.el = $(".asking");
+      this.setElement(".asking");
       this._app = app;
+    },
+
+    events: {
+      "input textarea": "textDidChange",
+      "click .answering-button": "buttonDidClick"
     },
 
     render: function() {
       var viewParams = { source: this._app.getSource() };
-      this.el.html(Mustache.to_html($("#askingViewTemplate").html(), viewParams));
-      this.textarea = this.el.find("textarea");
-      this.textarea.on("input", this.textDidCange.bind(this));
-      this.button = this.el.find(".answering-button");
-      this.button.on("click", this.buttonDidClick.bind(this));
-
+      this.$el.html(Mustache.to_html($("#askingViewTemplate").html(), viewParams));
+      this.textarea = this.$el.find("textarea");
+      this.button = this.$el.find(".answering-button");
       this.textarea.focus();
-      this.textDidCange(null);
+      this.textDidChange(null);
     },
 
-    textDidCange: function(evt) {
+    textDidChange: function(evt) {
       this.button.attr("disabled", this.textarea.val().length ? false : true);
     },
 
     buttonDidClick: function(evt) {
       this._app.postReflect({
-	note: this.el.find(".answering-note").val(),
+	note: this.$el.find(".answering-note").val(),
 	source: this._app.getSource()
       });
     }
@@ -133,17 +135,49 @@ Ha.dateToStringWithDay = function(date) {
     return date.toString().match(/\S+ \S+ \S+ \S+/)[0];
 };
 
+Ha.ReflectItemView = Backbone.View.extend(
+  {
+    initialize: function(opts, app, item) {
+      var itemRoot = Ha.instantiateTemplate(
+	"#reflectingItemTemplate", "reflect-list-item",
+	Ha.makePresentationForReflectingItem(item));
+      this.setElement(itemRoot);
+      this.el.dataset.id = item.id;
+      this._app = app;
+      this._item = item;
+    },
+
+    events: {
+      "webkitAnimationEnd .deleting-element": "didFadeOut",
+      "click .ref-delete-button": "didDeleteButtonClick"
+    },
+
+    render: function() {
+    },
+
+    didFadeOut: function(evt) {
+      this.remove();
+    },
+
+    didDeleteButtonClick: function(evt) {
+      evt.preventDefault();
+      this.$el.addClass("deleting-element");
+      this._app.deleteReflectItem(this.el.dataset.id);
+    }
+
+  });
+
 Ha.ReflectingView = Backbone.View.extend(
   {
     initialize: function(opts, app) {
-      this.el = $(".reflecting");
+      this.setElement($(".reflecting"));
       this._app = app;
     },
 
     render: function() {
       var viewParams = {};
-      this.el.html(Mustache.to_html($("#reflectingViewTemplate").html(), viewParams));
-      this.listRoot = this.el.find(".reflecting-list");
+      this.$el.html(Mustache.to_html($("#reflectingViewTemplate").html(), viewParams));
+      this.listRoot = this.$el.find(".reflecting-list");
     },
 
     addListDailyHeader: function(date) {
@@ -155,19 +189,10 @@ Ha.ReflectingView = Backbone.View.extend(
     },
 
     addListItem: function(item) {
-      var itemRoot = Ha.instantiateTemplate(
-	"#reflectingItemTemplate", "reflect-list-item",
-	Ha.makePresentationForReflectingItem(item));
-      itemRoot[0].dataset.id = item.id;
-      itemRoot.find(".ref-delete-button").on("click", itemRoot, this.didDeleteButtonClick.bind(this));
-      this.listRoot.append(itemRoot);
-    },
-
-    didDeleteButtonClick: function(evt) {
-      evt.preventDefault();
-      var itemRoot = evt.data;
-      itemRoot.addClass("deleting-element").on("webkitAnimationEnd", function() { itemRoot.remove(); });
-      this._app.deleteReflectItem(itemRoot[0].dataset.id);
+      console.log(item);
+      var itemView = new Ha.ReflectItemView({}, this._app, item);
+      itemView.render();
+      this.listRoot.append(itemView.$el);
     },
 
     listWasLoaded: function(list) {
@@ -189,9 +214,9 @@ Ha.ReflectingView = Backbone.View.extend(
 Ha.LoginoutView = Backbone.View.extend(
   {
     initialize: function(opts, app) {
-      this.el = $(".loginout");
-      this.el.find(".login").attr("href", Ha.URL.login);
-      this.el.find(".logout").attr("href", Ha.URL.logout);
+      this.setElement(".loginout");
+      this.$el.find(".login").attr("href", Ha.URL.login);
+      this.$el.find(".logout").attr("href", Ha.URL.logout);
       this._app = app;
       this.loginStatusDidUpdated(app.isLogin());
     },
@@ -199,11 +224,11 @@ Ha.LoginoutView = Backbone.View.extend(
     render: function() {
       var viewParams = {};
       if (this._app.isLogin()) {
-	this.el.find(".login").hide();
-	this.el.find(".logout").show();
+	this.$el.find(".login").hide();
+	this.$el.find(".logout").show();
       } else {
-	this.el.find(".login").show();
-	this.el.find(".logout").hide();
+	this.$el.find(".login").show();
+	this.$el.find(".logout").hide();
       }
     },
 
@@ -215,14 +240,14 @@ Ha.LoginoutView = Backbone.View.extend(
 Ha.WelcomeView = Backbone.View.extend(
   {
     initialize: function(opts, app) {
-      this.el = $(".welcome");
+      this.setElement(".welcome");
       this._app = app;
     },
 
     render: function() {
       var viewParams = {};
-      this.el.html(Mustache.to_html($("#welcomeViewTemplate").html(), viewParams));
-      this.el.find(".login").attr("href", Ha.URL.login);
+      this.$el.html(Mustache.to_html($("#welcomeViewTemplate").html(), viewParams));
+      this.$el.find(".login").attr("href", Ha.URL.login);
     }
   });
 
@@ -285,9 +310,9 @@ Ha.App = Backbone.Router.extend(
       this._views.forEach(
 	function(v) {
 	  if (viewsToRender.indexOf(v) < 0)
-	    v.el.hide();
+	    v.$el.hide();
 	  else {
-	    v.el.show();
+	    v.$el.show();
 	    v.render();
 	  }
 	}.bind(this));
