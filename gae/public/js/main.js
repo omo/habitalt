@@ -188,7 +188,6 @@ Ha.ReflectingView = Backbone.View.extend(
     },
 
     addListItem: function(item) {
-      console.log(item);
       var itemView = new Ha.ReflectItemView({}, this._app, item);
       itemView.render();
       this.listRoot.append(itemView.$el);
@@ -262,7 +261,7 @@ Ha.App = Backbone.Router.extend(
     },
 
     initialize: function(opts) {
-      this._source = null;
+      this._source = this.popLastSource();
       this._login = null;
       this._views = [];
 
@@ -274,13 +273,23 @@ Ha.App = Backbone.Router.extend(
 
     isLogin: function() { return this._login; },
     getSource: function() { return this._source; },
-    
+ 
+    popLastSource: function() {
+      var last = window.localStorage["_lastSource"];
+      delete window.localStorage["_lastSource"];
+      return last;
+    },
+
+    pushLastSource: function(source) {
+      window.localStorage["_lastSource"] = source;
+    },
+
     welcome: function() {
       this.renderOnly([this._welcomeView]);
     },
 
     reflectingWithoutLoad: function() {
-      this.checkLogin(window.location.toString());
+      this.checkLogin();
       this.renderOnly([this._reflectingView, this._loginoutView]);
     },
 
@@ -291,7 +300,7 @@ Ha.App = Backbone.Router.extend(
 
     asking: function(path) {
       this._source = path ? decodeURIComponent(path) : null;
-      this.checkLogin(window.location.toString());
+      this.checkLogin();
       this.renderOnly([this._askingView, this._loginoutView]);
       // We need this to handle backward history navs.
     },
@@ -361,12 +370,15 @@ Ha.App = Backbone.Router.extend(
 
     navigateByLoginState: function() {
       if (!this.isLogin()) {
-	if (this._loginAskingLocation)
-	  window.location = Ha.URL.login + "?to=" + encodeURIComponent(this._loginAskingLocation);
-	else
+	if (this.getSource()) {
+	  this.pushLastSource(this.getSource());
+	  window.location = Ha.URL.login;
+	} else
 	  this.navigate("welcome", { trigger: true });
       } else if (!this.getSource()) {
 	this.navigate("reflecting", { trigger: true });	
+      } else if (!window.location.hash) {
+	this.navigate("u?" + encodeURIComponent(this.getSource()), { trigger: true });
       }
     },
 
@@ -378,16 +390,15 @@ Ha.App = Backbone.Router.extend(
       return this._login;
     },
 
-    loginWasChecked: function(pred, loc) {
+    loginWasChecked: function(pred) {
       this._login = pred;
-      this._loginAskingLocation = loc;
       this._loginoutView.loginStatusDidUpdated(pred);
       this.navigateByLoginState();
     },
 
-    checkLogin: function(loc) {
+    checkLogin: function() {
       if (this._login !== null) {
-	window.setTimeout(this.loginWasChecked.bind(this, this._login, loc), 0);
+	window.setTimeout(this.loginWasChecked.bind(this, this._login), 0);
 	return;
       }
 
@@ -399,10 +410,10 @@ Ha.App = Backbone.Router.extend(
 	  xhrFields: { withCredentials: true }
 	}).done(
 	  function(result) {
-	    this.loginWasChecked(true, loc);
+	    this.loginWasChecked(true);
 	  }.bind(this)).error(
 	    function (jqXHR, textStatus, errorThrown) {
-	      this.loginWasChecked(false, loc);
+	      this.loginWasChecked(false);
 	    }.bind(this));
     }
 

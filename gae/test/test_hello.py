@@ -92,15 +92,6 @@ class LoginTest(unittest.TestCase, helpers.DataStoreTestHelper):
         response = request.get_response(main.app)
         self.assertEquals(response.status_int, 302)
 
-    def test_login_to(self):
-        self.giveUser()
-        dest = u'http://localhost:8080/#u=' + urllib.quote('http://example.com');
-        url = '/login?to=' + urllib.quote(dest)
-        request = webapp2.Request.blank(url)
-        response = request.get_response(main.app)
-        self.assertEquals(response.status_int, 302)
-        self.assertEquals(response.headers["Location"], dest)
-
     def test_logout(self):
         request = webapp2.Request.blank('/logout')
         response = request.get_response(main.app)
