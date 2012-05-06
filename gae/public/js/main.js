@@ -256,7 +256,7 @@ Ha.App = Backbone.Router.extend(
     },
 
     reflectingWithoutLoad: function() {
-      this.checkLogin();
+      this.checkLogin(window.location.toString());
       this.renderOnly([this._reflectingView, this._loginoutView]);
     },
 
@@ -267,7 +267,7 @@ Ha.App = Backbone.Router.extend(
 
     asking: function(path) {
       this._source = path ? decodeURIComponent(path) : null;
-      this.checkLogin();
+      this.checkLogin(window.location.toString());
       this.renderOnly([this._askingView, this._loginoutView]);
       // We need this to handle backward history navs.
     },
@@ -337,21 +337,33 @@ Ha.App = Backbone.Router.extend(
 
     navigateByLoginState: function() {
       if (!this.isLogin()) {
-	this.navigate("welcome", { trigger: true });	
+	if (this._loginAskingLocation)
+	  window.location = Ha.URL.login + "?to=" + encodeURIComponent(this._loginAskingLocation);
+	else
+	  this.navigate("welcome", { trigger: true });
       } else if (!this.getSource()) {
 	this.navigate("reflecting", { trigger: true });	
       }
     },
 
-    loginWasChecked: function(pred) {
-      this._login = pred;
-      this._loginoutView.loginStatusDidUpdated(pred);
-      window.setTimeout(this.navigateByLoginState.bind(this), 0);
+    hasEverCheckedLogin: function() {
+      return this._login !== null;
     },
 
-    checkLogin: function() {
+    getLoginState: function() {
+      return this._login;
+    },
+
+    loginWasChecked: function(pred, loc) {
+      this._login = pred;
+      this._loginAskingLocation = loc;
+      this._loginoutView.loginStatusDidUpdated(pred);
+      this.navigateByLoginState();
+    },
+
+    checkLogin: function(loc) {
       if (this._login !== null) {
-	this.loginWasChecked(this._login);
+	window.setTimeout(this.loginWasChecked.bind(this, this._login, loc), 0);
 	return;
       }
 
@@ -363,10 +375,10 @@ Ha.App = Backbone.Router.extend(
 	  xhrFields: { withCredentials: true }
 	}).done(
 	  function(result) {
-	    this.loginWasChecked(true);
+	    this.loginWasChecked(true, loc);
 	  }.bind(this)).error(
 	    function (jqXHR, textStatus, errorThrown) {
-	      this.loginWasChecked(false);
+	      this.loginWasChecked(false, loc);
 	    }.bind(this));
     }
 

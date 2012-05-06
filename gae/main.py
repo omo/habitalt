@@ -147,13 +147,18 @@ routes.append(('/ping', PingHandler))
 
 
 class LoginHandler(webapp2.RequestHandler):
+
+  def destination_for(self):
+    to = self.request.get("to")
+    return to or REDIRECT_HOME
+
   def get(self):
     if not users.get_current_user():
       # It looks GAE doesn't create login url for non-gae urls.
-      another_redirect_home = ("/redirect?to=" + urllib.quote(REDIRECT_HOME)).encode('utf-8')
+      another_redirect_home = ("/redirect?to=" + urllib.quote(self.destination_for())).encode('utf-8')
       self.redirect(users.create_login_url(another_redirect_home))
       return
-    self.redirect(REDIRECT_HOME)
+    self.redirect(self.destination_for())
 routes.append(('/login', LoginHandler))
 
 

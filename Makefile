@@ -51,6 +51,8 @@ s3fixup:
 	s3cmd put --acl-public --mime-type="application/x-chrome-extension" ${CRX_BIN_CRX} ${S3_BUCKET_PUBLIC}
 gaeup:
 	${GAESDK_PATH}/appcfg.py update ./gae
+run:
+	${GAESDK_PATH}/dev_appserver.py ./gae
 
 clean: 
 	-rm -r ${CRX_JS_THIRD_PARTY} ${GAE_JS_THIRD_PARTY}
@@ -59,4 +61,4 @@ clean:
 bootstrap:
 	npm install
 
-.PHONY: bootstrap clean s3sync d3fixup deploy
+.PHONY: bootstrap clean s3sync d3fixup deploy run
